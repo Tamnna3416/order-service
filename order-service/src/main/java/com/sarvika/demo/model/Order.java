@@ -1,26 +1,32 @@
 package com.sarvika.demo.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@Table(name = "orders")
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    private Long userId; 
+    @Column(name = "order_date", columnDefinition = "DATETIME")
     private LocalDateTime orderDate;
+
     private String status;
-    private Double totalAmount;
+
+    @Column(name = "user_id")
+    private Integer userId;
+
+    @Column(name = "product_id")
+    private List<Integer> productId;
+
 
 }

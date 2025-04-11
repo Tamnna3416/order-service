@@ -1,5 +1,10 @@
 package com.sarvika.demo.service;
 
+import com.sarvika.demo.client.ExternalServiceClient;
+import com.sarvika.demo.model.dto.ProductDetails;
+import com.sarvika.demo.model.dto.UserDetails;
+import com.sarvika.demo.model.dto.response.OrderResponseDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sarvika.demo.exception.OrderNotFoundException;
@@ -8,7 +13,9 @@ import com.sarvika.demo.repository.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +25,12 @@ import java.util.Optional;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+
+    private final ExternalServiceClient externalServiceClient;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
 
     public Order saveOrder(Order order) {
         log.info("Saving order: {}", order);
@@ -61,6 +74,27 @@ public class OrderService {
         Order updatedOrder = orderRepository.save(order);
         log.info("Order status updated to: {}", updatedOrder.getStatus());
         return updatedOrder;
+    }
+
+    public OrderResponseDto getOrderDetails(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        UserDetails user = externalServiceClient.getUserDetails(order.getUserId());
+
+        List<ProductDetails> products = new ArrayList<>();
+        for (Integer productId : order.getProductId()) {
+            ProductDetails product = externalServiceClient.getProductDetails(productId);
+            products.add(product);
+        }
+
+        OrderResponseDto response = new OrderResponseDto();
+        response.setOrderId(order.getId());
+        response.setOrderStatus(order.getStatus());
+        response.setUserDetails(user);
+        response.setProductDetails(products);
+
+        return response;
     }
 }
 

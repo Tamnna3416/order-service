@@ -1,5 +1,6 @@
 package com.sarvika.demo.controller;
 
+import com.sarvika.demo.model.dto.response.OrderResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,5 +45,11 @@ public class OrderController {
     public ResponseEntity<Order> updateOrderStatus(@PathVariable Long id, @RequestBody String status) {
         Order updatedOrder = orderService.updateOrderStatus(id, status);
         return ResponseEntity.ok(updatedOrder);
+    }
+
+    @GetMapping("/details/{id}")
+    public ResponseEntity<OrderResponseDto> getOrderDetailsById(@PathVariable Long id) {
+        OrderResponseDto order = orderService.getOrderDetails(id);
+        return ResponseEntity.ok(order);
     }
 }
